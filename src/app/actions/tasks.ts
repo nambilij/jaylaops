@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logAudit } from "@/lib/audit";
+import { notifyUser, notifyManagers } from "@/lib/telegram/notify";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -175,6 +176,21 @@ export async function assignTask(formData: FormData) {
     diff: { assignee_id: assigneeId },
   });
 
+  // Notify the assignee via Telegram
+  const { data: taskInfo } = await admin
+    .from("daily_tasks")
+    .select("units(name), task_templates(name)")
+    .eq("id", taskId)
+    .single();
+  const unitName = Array.isArray(taskInfo?.units) ? taskInfo.units[0]?.name : (taskInfo?.units as unknown as { name: string } | null)?.name;
+  const tmplName = Array.isArray(taskInfo?.task_templates) ? taskInfo.task_templates[0]?.name : (taskInfo?.task_templates as unknown as { name: string } | null)?.name;
+
+  await notifyUser({
+    userId: assigneeId,
+    templateKey: "task.assigned",
+    message: `📋 *New task assigned to you:*\n\n🏠 ${unitName || "Room"} — ${tmplName || "Task"}\n\nSend /start_task to begin.`,
+  });
+
   revalidatePath("/dashboard/tasks");
   return { success: true };
 }
@@ -276,6 +292,34 @@ export async function completeTask(formData: FormData) {
     .from("units")
     .update({ status: "CLEANED" })
     .eq("id", task.unit_id);
+
+  // Notify managers that a task is ready for inspection
+  const { data: unitInfo } = await admin
+    .from("units")
+    .select("name, property_id")
+    .eq("id", task.unit_id)
+    .single();
+
+  const { data: tmplInfo } = await admin
+    .from("daily_tasks")
+    .select("task_templates(name)")
+    .eq("id", taskId)
+    .single();
+  const tmplName = Array.isArray(tmplInfo?.task_templates) ? tmplInfo.task_templates[0]?.name : (tmplInfo?.task_templates as unknown as { name: string } | null)?.name;
+
+  const { data: assigneeInfo } = await admin
+    .from("profiles")
+    .select("full_name")
+    .eq("id", auth.user.id)
+    .single();
+
+  if (unitInfo?.property_id) {
+    await notifyManagers({
+      propertyId: unitInfo.property_id,
+      templateKey: "task.awaiting_inspection",
+      message: `🔍 *Task ready for inspection:*\n\n🏠 ${unitInfo.name} — ${tmplName || "Task"}\nCompleted by: ${assigneeInfo?.full_name || "Staff"}\n\nCheck the dashboard or send /pending`,
+    });
+  }
 
   revalidatePath("/dashboard/tasks");
   return { success: true };
@@ -403,6 +447,32 @@ export async function inspectTask(formData: FormData) {
     entity_id: taskId,
     diff: { result, notes, score },
   });
+
+  // Notify the assignee about the inspection result
+  const { data: fullTask } = await admin
+    .from("daily_tasks")
+    .select("assignee_id, units(name), task_templates(name)")
+    .eq("id", taskId)
+    .single();
+
+  if (fullTask?.assignee_id) {
+    const unitName = Array.isArray(fullTask.units) ? fullTask.units[0]?.name : (fullTask.units as unknown as { name: string } | null)?.name;
+    const tmplName = Array.isArray(fullTask.task_templates) ? fullTask.task_templates[0]?.name : (fullTask.task_templates as unknown as { name: string } | null)?.name;
+
+    if (result === "approved") {
+      await notifyUser({
+        userId: fullTask.assignee_id,
+        templateKey: "task.approved",
+        message: `✅ *Task approved!*\n\n🏠 ${unitName || "Room"} — ${tmplName || "Task"}\n${score ? `Score: ${"⭐".repeat(score)}` : ""}\n\nGreat work!`,
+      });
+    } else {
+      await notifyUser({
+        userId: fullTask.assignee_id,
+        templateKey: "task.rejected",
+        message: `❌ *Task rejected:*\n\n🏠 ${unitName || "Room"} — ${tmplName || "Task"}\nReason: ${notes || "No reason given"}\n\nSend /start_task to redo it.`,
+      });
+    }
+  }
 
   revalidatePath("/dashboard/tasks");
   return { success: true };
