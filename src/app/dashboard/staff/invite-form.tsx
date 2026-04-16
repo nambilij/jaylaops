@@ -19,9 +19,9 @@ export function InviteForm({ roles }: { roles: Role[] }) {
 
     const result = await inviteStaff(formData);
 
-    if (result?.error) {
+    if ("error" in result && result.error) {
       setError(result.error);
-    } else if (result?.success) {
+    } else if ("success" in result && "tempPassword" in result) {
       setSuccess(
         `Staff invited! Temporary password: ${result.tempPassword} — share it securely, they should change it on first login.`
       );

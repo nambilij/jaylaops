@@ -20,7 +20,7 @@ export default async function StaffPage() {
     .eq("id", user.id)
     .single();
 
-  const myRole = (myProfile?.roles as { name: string } | null)?.name;
+  const myRole = (myProfile?.roles as unknown as { name: string } | null)?.name;
   const canManage = myRole === "super_admin" || myRole === "manager";
 
   if (!canManage) {

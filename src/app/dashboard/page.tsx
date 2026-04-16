@@ -35,7 +35,10 @@ export default async function DashboardPage() {
     .select("id, name, short_code, status")
     .order("sort_order");
 
-  const roleName = (profile?.roles as { name: string } | null)?.name;
+  const rolesData = profile?.roles;
+  const roleName = Array.isArray(rolesData)
+    ? rolesData[0]?.name
+    : (rolesData as unknown as { name: string } | null)?.name;
   const canManage = roleName === "super_admin" || roleName === "manager";
 
   return (
@@ -46,12 +49,20 @@ export default async function DashboardPage() {
           <h1 className="text-xl font-bold text-gray-900">JaylaOps</h1>
           <div className="flex items-center gap-4">
             {canManage && (
-              <Link
-                href="/dashboard/staff"
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
-              >
-                Manage Staff
-              </Link>
+              <>
+                <Link
+                  href="/dashboard/qr-codes"
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  QR Codes
+                </Link>
+                <Link
+                  href="/dashboard/staff"
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Manage Staff
+                </Link>
+              </>
             )}
             <span className="text-sm text-gray-500">
               {profile?.full_name || user.email}

@@ -19,7 +19,7 @@ async function requireManager() {
     .eq("id", user.id)
     .single();
 
-  const roleName = (profile?.roles as { name: string } | null)?.name;
+  const roleName = (profile?.roles as unknown as { name: string } | null)?.name;
   if (roleName !== "super_admin" && roleName !== "manager") {
     return { error: "Only managers and admins can manage staff." };
   }

@@ -11,7 +11,7 @@ type Member = {
   full_name: string | null;
   is_active: boolean;
   role_id: string | null;
-  roles: { id: string; name: string; label: string } | null;
+  roles: { id: string; name: string; label: string }[] | null;
 };
 
 export function StaffRow({
@@ -26,7 +26,8 @@ export function StaffRow({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const isMe = member.id === currentUserId;
-  const roleName = member.roles?.name;
+  const memberRole = member.roles?.[0] ?? null;
+  const roleName = memberRole?.name;
 
   async function handleRoleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setLoading(true);
@@ -67,7 +68,7 @@ export function StaffRow({
       <td className="whitespace-nowrap px-6 py-4 text-sm">
         {isMe || roleName === "super_admin" ? (
           <span className="inline-block rounded-full bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700">
-            {member.roles?.label || "No role"}
+            {memberRole?.label || "No role"}
           </span>
         ) : (
           <select
