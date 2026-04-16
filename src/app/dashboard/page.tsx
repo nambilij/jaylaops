@@ -125,9 +125,12 @@ export default async function DashboardPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900">JaylaOps</h1>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">
+            <Link
+              href="/dashboard/account"
+              className="text-sm text-gray-500 hover:text-gray-900"
+            >
               {profile?.full_name || user.email}
-            </span>
+            </Link>
             <form action={logout}>
               <button
                 type="submit"

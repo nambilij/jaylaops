@@ -100,6 +100,62 @@ export async function resetPassword(formData: FormData) {
   redirect("/dashboard");
 }
 
+export async function changePassword(formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "You must be logged in." };
+  }
+
+  const currentPassword = formData.get("current_password") as string;
+  const newPassword = formData.get("new_password") as string;
+  const confirmPassword = formData.get("confirm_password") as string;
+
+  if (!currentPassword) {
+    return { error: "Current password is required." };
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    return { error: "New password must be at least 6 characters." };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { error: "New passwords do not match." };
+  }
+
+  // Verify current password by trying to sign in
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email!,
+    password: currentPassword,
+  });
+
+  if (verifyError) {
+    return { error: "Current password is incorrect." };
+  }
+
+  // Update to new password
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  await logAudit({
+    actor_id: user.id,
+    action: "auth.password_changed",
+    entity: "profiles",
+    entity_id: user.id,
+  });
+
+  return { success: true };
+}
+
 export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
