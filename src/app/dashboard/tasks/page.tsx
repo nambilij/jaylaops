@@ -33,7 +33,7 @@ export default async function TasksPage() {
   const { data: tasks } = await supabase
     .from("daily_tasks")
     .select(
-      "id, status, scheduled_for, started_at, completed_at, inspected_at, rejection_reason, assignee_id, checklist_state, units(id, name, short_code), task_templates(id, name, estimated_minutes, required_photos, task_checklist_items(id, label, sort_order))"
+      "id, status, scheduled_for, started_at, completed_at, inspected_at, rejection_reason, assignee_id, checklist_state, units(id, name, short_code), task_templates(id, name, estimated_minutes, required_photos, task_checklist_items(id, label, sort_order)), task_photos(id, storage_path)"
     )
     .eq("scheduled_for", today)
     .order("status");

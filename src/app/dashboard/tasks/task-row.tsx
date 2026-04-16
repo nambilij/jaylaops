@@ -5,9 +5,11 @@ import {
   startTask,
   completeTask,
   inspectTask,
+  saveTaskPhoto,
 } from "@/app/actions/tasks";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PhotoUpload, PhotoThumbnails } from "./photo-upload";
 
 type ChecklistItem = { id: string; label: string; sort_order: number };
 type Task = {
@@ -28,6 +30,7 @@ type Task = {
     required_photos: number;
     task_checklist_items: ChecklistItem[];
   }[] | null;
+  task_photos: { id: string; storage_path: string }[] | null;
 };
 
 const statusColors: Record<string, string> = {
@@ -62,6 +65,9 @@ export function TaskRow({
     });
     return state;
   });
+  const [photoPaths, setPhotoPaths] = useState<string[]>(
+    (task.task_photos || []).map((p) => p.storage_path)
+  );
   const [inspectNotes, setInspectNotes] = useState("");
   const [inspectScore, setInspectScore] = useState("5");
   const router = useRouter();
@@ -216,6 +222,32 @@ export function TaskRow({
                 </ul>
               </div>
             )}
+
+          {/* Photos */}
+          {["IN_PROGRESS", "AWAITING_INSPECTION", "APPROVED", "REJECTED"].includes(task.status) && (
+            <div className="mb-4">
+              <p className="mb-2 text-sm font-medium text-gray-700">
+                Photos ({photoPaths.length}
+                {template ? ` / ${template.required_photos} required` : ""}):
+              </p>
+              <PhotoThumbnails paths={photoPaths} />
+              {task.status === "IN_PROGRESS" && (isAssignee || isManager) && (
+                <div className="mt-2">
+                  <PhotoUpload
+                    taskId={task.id}
+                    disabled={loading}
+                    onUploaded={async (path) => {
+                      setPhotoPaths((prev) => [...prev, path]);
+                      const fd = new FormData();
+                      fd.set("task_id", task.id);
+                      fd.set("storage_path", path);
+                      await saveTaskPhoto(fd);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Action buttons */}
           <div className="flex flex-wrap gap-2">

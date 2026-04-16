@@ -281,6 +281,44 @@ export async function completeTask(formData: FormData) {
   return { success: true };
 }
 
+/** Save a photo reference for a task. */
+export async function saveTaskPhoto(formData: FormData) {
+  const auth = await requireAuth();
+  const taskId = formData.get("task_id") as string;
+  const storagePath = formData.get("storage_path") as string;
+
+  if (!taskId || !storagePath) {
+    return { error: "Task ID and storage path are required." };
+  }
+
+  const admin = createAdminClient();
+
+  // Verify task exists and user is assignee or manager
+  const { data: task } = await admin
+    .from("daily_tasks")
+    .select("id, assignee_id")
+    .eq("id", taskId)
+    .single();
+
+  if (!task) return { error: "Task not found." };
+
+  const isManager = ["super_admin", "manager", "supervisor"].includes(auth.roleName || "");
+  if (task.assignee_id !== auth.user.id && !isManager) {
+    return { error: "You cannot upload photos for this task." };
+  }
+
+  const { error } = await admin.from("task_photos").insert({
+    task_id: taskId,
+    storage_path: storagePath,
+    file_name: storagePath.split("/").pop(),
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/tasks");
+  return { success: true };
+}
+
 /** Inspect a task — approve or reject. */
 export async function inspectTask(formData: FormData) {
   const auth = await requireSupervisor();
