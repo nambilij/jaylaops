@@ -2,6 +2,20 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { logout } from "@/app/actions/auth";
 import Link from "next/link";
+import {
+  TaskIcon,
+  InspectionIcon,
+  IssueIcon,
+  StarIcon,
+  NavTasksIcon,
+  NavTemplatesIcon,
+  NavIssuesIcon,
+  NavFeedbackIcon,
+  NavReportsIcon,
+  NavStaffIcon,
+  NavQRIcon,
+  NavAuditIcon,
+} from "@/app/components/illustrations";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -104,37 +118,37 @@ export default async function DashboardPage() {
     };
   }
 
-  // Navigation links
+  // Navigation links with icons
   const navLinks = canManage
     ? [
-        { href: "/dashboard/tasks", label: "Tasks", primary: true },
-        { href: "/dashboard/templates", label: "Templates" },
-        { href: "/dashboard/issues", label: "Issues" },
-        { href: "/dashboard/feedback", label: "Feedback" },
-        { href: "/dashboard/reports", label: "Reports" },
-        { href: "/dashboard/staff", label: "Staff" },
-        { href: "/dashboard/qr-codes", label: "QR Codes" },
-        { href: "/dashboard/audit-log", label: "Audit Log" },
+        { href: "/dashboard/tasks", label: "Tasks", icon: NavTasksIcon, primary: true },
+        { href: "/dashboard/templates", label: "Templates", icon: NavTemplatesIcon },
+        { href: "/dashboard/issues", label: "Issues", icon: NavIssuesIcon },
+        { href: "/dashboard/feedback", label: "Feedback", icon: NavFeedbackIcon },
+        { href: "/dashboard/reports", label: "Reports", icon: NavReportsIcon },
+        { href: "/dashboard/staff", label: "Staff", icon: NavStaffIcon },
+        { href: "/dashboard/qr-codes", label: "QR Codes", icon: NavQRIcon },
+        { href: "/dashboard/audit-log", label: "Audit Log", icon: NavAuditIcon },
       ]
-    : [{ href: "/dashboard/tasks", label: "My Tasks", primary: true }];
+    : [{ href: "/dashboard/tasks", label: "My Tasks", icon: NavTasksIcon, primary: true }];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-50">
       {/* Top bar */}
-      <header className="border-b border-gray-200 bg-white px-6 py-4">
+      <header className="border-b border-brand-200 bg-white px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">JaylaOps</h1>
+          <h1 className="text-xl font-bold text-brand-900">JaylaOps</h1>
           <div className="flex items-center gap-4">
             <Link
               href="/dashboard/account"
-              className="text-sm text-gray-500 hover:text-gray-900"
+              className="text-sm text-brand-600 hover:text-brand-900"
             >
               {profile?.full_name || user.email}
             </Link>
             <form action={logout}>
               <button
                 type="submit"
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-brand-200 px-3 py-1.5 text-sm text-brand-700 hover:bg-brand-50"
               >
                 Sign out
               </button>
@@ -147,70 +161,86 @@ export default async function DashboardPage() {
         {/* Property header */}
         {property && (
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-brand-900">
               {property.name}
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-brand-600">
               {property.address}, {property.city}
             </p>
           </div>
         )}
 
-        {/* Navigation */}
+        {/* Navigation with icons */}
         <div className="mb-8 flex flex-wrap gap-2">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={
-                link.primary
-                  ? "rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                  : "rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-              }
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={
+                  link.primary
+                    ? "inline-flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 transition-colors"
+                    : "inline-flex items-center gap-2 rounded-lg border border-brand-200 bg-white px-4 py-2 text-sm text-brand-700 hover:bg-brand-50 transition-colors"
+                }
+              >
+                <Icon className="h-4 w-4" />
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         {/* KPIs (managers only) */}
         {canManage && (
           <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <p className="text-sm text-gray-500">Task Completion</p>
-              <p className="mt-1 text-3xl font-bold text-gray-900">
+            <div className="rounded-xl border border-brand-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <TaskIcon className="h-5 w-5 text-brand-500" />
+                <p className="text-sm text-brand-600">Task Completion</p>
+              </div>
+              <p className="mt-2 text-3xl font-bold text-brand-900">
                 {kpis.taskCompletion}%
               </p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-brand-500">
                 {kpis.totalTasks} tasks today
               </p>
             </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <p className="text-sm text-gray-500">Awaiting Inspection</p>
-              <p className="mt-1 text-3xl font-bold text-purple-600">
+            <div className="rounded-xl border border-brand-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <InspectionIcon className="h-5 w-5 text-purple-500" />
+                <p className="text-sm text-brand-600">Awaiting Inspection</p>
+              </div>
+              <p className="mt-2 text-3xl font-bold text-purple-600">
                 {kpis.awaitingInspection}
               </p>
-              <p className="mt-1 text-xs text-gray-400">tasks to review</p>
+              <p className="mt-1 text-xs text-brand-500">tasks to review</p>
             </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <p className="text-sm text-gray-500">Open Issues</p>
+            <div className="rounded-xl border border-brand-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <IssueIcon className="h-5 w-5 text-red-500" />
+                <p className="text-sm text-brand-600">Open Issues</p>
+              </div>
               <p
-                className={`mt-1 text-3xl font-bold ${kpis.openIssues > 0 ? "text-red-600" : "text-green-600"}`}
+                className={`mt-2 text-3xl font-bold ${kpis.openIssues > 0 ? "text-red-600" : "text-green-600"}`}
               >
                 {kpis.openIssues}
               </p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-brand-500">
                 {kpis.urgentFeedback > 0
                   ? `${kpis.urgentFeedback} urgent feedback this week`
                   : "no urgent feedback this week"}
               </p>
             </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <p className="text-sm text-gray-500">Guest Rating</p>
-              <p className="mt-1 text-3xl font-bold text-yellow-500">
-                {kpis.avgRating > 0 ? `${kpis.avgRating}/5` : "—"}
+            <div className="rounded-xl border border-brand-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <StarIcon className="h-5 w-5 text-yellow-500" />
+                <p className="text-sm text-brand-600">Guest Rating</p>
+              </div>
+              <p className="mt-2 text-3xl font-bold text-yellow-500">
+                {kpis.avgRating > 0 ? `${kpis.avgRating}/5` : "\u2014"}
               </p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-brand-500">
                 {kpis.feedbackCount} reviews (30 days)
               </p>
             </div>
@@ -218,16 +248,16 @@ export default async function DashboardPage() {
         )}
 
         {/* Rooms grid */}
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+        <h3 className="mb-4 text-lg font-semibold text-brand-900">
           Rooms ({units?.length || 0})
         </h3>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {units?.map((unit) => (
             <div
               key={unit.id}
-              className="rounded-lg border border-gray-200 bg-white p-4 text-center"
+              className="rounded-xl border border-brand-200 bg-white p-4 text-center shadow-sm"
             >
-              <h4 className="text-sm font-medium text-gray-900">
+              <h4 className="text-sm font-medium text-brand-900">
                 {unit.name}
               </h4>
               <div className="mt-2">
@@ -242,7 +272,7 @@ export default async function DashboardPage() {
                           ? "bg-yellow-100 text-yellow-700"
                           : unit.status === "PROBLEM_REPORTED"
                             ? "bg-red-100 text-red-700"
-                            : "bg-gray-100 text-gray-700"
+                            : "bg-brand-100 text-brand-700"
                   }`}
                 >
                   {unit.status.replace(/_/g, " ")}

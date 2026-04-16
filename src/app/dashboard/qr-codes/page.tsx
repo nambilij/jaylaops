@@ -22,7 +22,10 @@ export default async function QRCodesPage() {
     .eq("id", user.id)
     .single();
 
-  const roleName = (profile?.roles as unknown as { name: string } | null)?.name;
+  const rolesData = profile?.roles;
+  const roleName = Array.isArray(rolesData)
+    ? rolesData[0]?.name
+    : (rolesData as unknown as { name: string } | null)?.name;
   if (roleName !== "super_admin" && roleName !== "manager") {
     redirect("/dashboard");
   }

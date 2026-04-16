@@ -10,13 +10,22 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Namibian hospitality palette */
+  --color-brand-50: #FFF7ED;
+  --color-brand-100: #FDE8D0;
+  --color-brand-200: #F9C87C;
+  --color-brand-300: #F5A623;
+  --color-brand-400: #E8855E;
+  --color-brand-500: #C67B4E;
+  --color-brand-600: #A0764E;
+  --color-brand-700: #8B6544;
+  --color-brand-800: #6B4C35;
+  --color-brand-900: #5C3D2A;
+
+  --color-accent-500: #2B7A6F;
+  --color-accent-600: #1F6B60;
+  --color-accent-700: #175A51;
 }
 
 body {
