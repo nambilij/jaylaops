@@ -1,0 +1,191 @@
+Act as a senior product architect, UX designer, solution architect, and full-stack engineer.
+
+Build a production-ready web application called “JaylaOps” for Jayla Selfcatering, a six-unit self-catering accommodation property.
+
+BUSINESS CONTEXT
+Jayla Selfcatering has 6 accommodation units. Management needs a system to manage housekeeping, verify cleaning quality, track missed tasks, record maintenance issues, collect guest feedback through QR codes placed in each room, and generate monthly management reports. Telegram must serve as the operational front end for staff and management, while the main system must be a full-featured web application.
+
+PRIMARY OBJECTIVE
+Design and build a web app with Telegram bot integration that:
+1. generates daily housekeeping tasks
+2. guides housekeepers through step-by-step cleaning workflows
+3. tracks completed and incomplete tasks
+4. lets managers and supervisors inspect work
+5. records issues and maintenance requests
+6. allows guests to scan QR codes in each room and submit feedback or complaints
+7. alerts management to urgent cleanliness or service issues
+8. provides monthly analytics and reports
+
+REQUIRED ROLES
+- Super Admin
+- Manager
+- Supervisor
+- Housekeeper
+- Guest
+
+REQUIRED MODULES
+1. Authentication and role-based authorization
+2. Property and unit management
+3. Daily housekeeping task scheduling
+4. Guided task execution with checklists
+5. Telegram bot commands and notifications
+6. Web dashboard for management
+7. Room inspection and approval workflow
+8. Issue and maintenance tracking
+9. QR-code-based guest feedback per room
+10. Monthly analytics and PDF/CSV reporting
+11. Audit logging
+12. Notification and escalation engine
+
+FUNCTIONAL REQUIREMENTS
+- Create recurring daily task templates by room and area
+- Auto-generate daily tasks each morning
+- Assign tasks to housekeepers
+- Show housekeepers today’s tasks through Telegram and web UI
+- Allow task status transitions: Pending, In Progress, Completed, Rejected, Escalated
+- Allow photo proof uploads
+- Allow supervisors to approve or reject completed tasks
+- Reopen rejected tasks automatically
+- Track room status: Dirty, In Progress, Cleaned, Inspected, Guest Ready, Problem Reported
+- Allow issue reporting by staff and guests
+- Generate QR codes per room
+- Guest QR scan opens a mobile form tied to the room
+- Guest can rate cleanliness, comfort, communication, and overall stay
+- Guest can state whether room was clean on arrival
+- Guest can submit comments, complaints, suggestions, and optional photos
+- Low guest ratings or urgent complaints must notify manager immediately
+- Management dashboard must show operational metrics and trends
+- Monthly report must summarize staff performance, room issues, and guest feedback
+
+TELEGRAM REQUIREMENTS
+Support these example commands:
+Housekeeper:
+- /start
+- /today
+- /nexttask
+- /pending
+- /done
+- /issue
+- /supplies
+- /summary
+
+Manager:
+- /dashboard
+- /today
+- /pending
+- /unit
+- /issues
+- /report
+- /assign
+- /remind
+- /monthly
+
+Telegram should use both normal bot messages and deep links into a Telegram Mini App / Web App when richer UI is needed.
+
+NON-FUNCTIONAL REQUIREMENTS
+- Mobile-first UI
+- Clean responsive web dashboard
+- PostgreSQL database
+- Secure authentication
+- Role-based access control
+- Row-level security or equivalent policy-based data access
+- Full audit trail
+- HTTPS everywhere
+- Input validation
+- Rate limiting for guest feedback endpoints
+- Secure file upload handling
+- Background jobs for reminders, escalations, and report generation
+- Test coverage for critical flows
+- Environment-based configuration
+- Production-ready code structure
+
+DATA MODEL
+Design database schema for:
+- users
+- roles
+- properties
+- units
+- areas
+- task_templates
+- daily_tasks
+- task_checklist_steps
+- task_status_history
+- inspections
+- issues
+- issue_comments
+- guest_feedback
+- guest_messages
+- qr_codes
+- stock_items
+- stock_movements
+- notifications
+- monthly_reports
+- audit_logs
+
+UX REQUIREMENTS
+- Minimal typing for staff
+- Large buttons
+- Clear room-centric screens
+- Fast navigation
+- Friendly but professional design
+- Printable QR code cards for each room
+- Dashboard cards, charts, tables, filters, and exports
+
+DELIVERABLES
+Produce all of the following:
+1. full PRD
+2. feature breakdown by module
+3. user stories by role
+4. acceptance criteria
+5. complete system architecture
+6. database schema
+7. API specification
+8. Telegram bot conversation flows
+9. QR feedback flow
+10. admin dashboard wireframe descriptions
+11. housekeeping workflow logic
+12. notification and escalation rules
+13. monthly reporting logic
+14. recommended folder structure for the codebase
+15. implementation roadmap in phases
+16. security checklist
+17. test plan
+18. seed data examples for 6 units
+19. sample Telegram command responses
+20. sample monthly management report structure
+
+TECHNICAL PREFERENCE
+Prefer:
+- Next.js frontend
+- Tailwind CSS
+- Node.js/NestJS or FastAPI backend
+- PostgreSQL
+- Telegram Bot API integration
+- object storage for photos
+- PDF export
+- CSV export
+- cron or queue workers for scheduled jobs
+
+CODING STANDARD
+Generate production-quality, modular, readable code and architecture.
+Use best practices for security, maintainability, and extensibility.
+Do not produce a toy app.
+Design this as a real hospitality operations platform that can grow later into booking, inventory, and maintenance management.
+
+OUTPUT FORMAT
+Return the solution in this order:
+1. Executive summary
+2. Full PRD
+3. User stories
+4. Functional requirements
+5. Non-functional requirements
+6. Database design
+7. API design
+8. Telegram bot flow
+9. Guest QR feedback flow
+10. Dashboard and web app screens
+11. Architecture diagram description
+12. Build roadmap
+13. Risks and mitigations
+14. Security checklist
+15. Optional future enhancements
