@@ -75,6 +75,12 @@ export default async function DashboardPage() {
                   Manage Staff
                 </Link>
                 <Link
+                  href="/dashboard/issues"
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Issues
+                </Link>
+                <Link
                   href="/dashboard/feedback"
                   className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
                 >
