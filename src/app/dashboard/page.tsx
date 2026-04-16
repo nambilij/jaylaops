@@ -51,6 +51,18 @@ export default async function DashboardPage() {
             {canManage && (
               <>
                 <Link
+                  href="/dashboard/tasks"
+                  className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                >
+                  Today&apos;s Tasks
+                </Link>
+                <Link
+                  href="/dashboard/templates"
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Templates
+                </Link>
+                <Link
                   href="/dashboard/qr-codes"
                   className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
                 >
