@@ -1,6 +1,6 @@
 "use client";
 
-import { updateStaffRole, toggleStaffActive } from "@/app/actions/staff";
+import { updateStaffRole, toggleStaffActive, generateTelegramCode } from "@/app/actions/staff";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -11,6 +11,7 @@ type Member = {
   full_name: string | null;
   is_active: boolean;
   role_id: string | null;
+  tg_user_id: number | null;
   roles: { id: string; name: string; label: string }[] | null;
 };
 
@@ -24,6 +25,7 @@ export function StaffRow({
   currentUserId: string;
 }) {
   const [loading, setLoading] = useState(false);
+  const [tgCode, setTgCode] = useState<string | null>(null);
   const router = useRouter();
   const isMe = member.id === currentUserId;
   const memberRole = member.roles?.[0] ?? null;
@@ -46,6 +48,17 @@ export function StaffRow({
     formData.set("is_active", String(member.is_active));
     await toggleStaffActive(formData);
     router.refresh();
+    setLoading(false);
+  }
+
+  async function handleGenerateTgCode() {
+    setLoading(true);
+    const formData = new FormData();
+    formData.set("staff_id", member.id);
+    const result = await generateTelegramCode(formData);
+    if ("code" in result) {
+      setTgCode(result.code);
+    }
     setLoading(false);
   }
 
@@ -96,6 +109,25 @@ export function StaffRow({
         >
           {member.is_active ? "Active" : "Inactive"}
         </span>
+      </td>
+      <td className="whitespace-nowrap px-6 py-4 text-sm">
+        {member.tg_user_id ? (
+          <span className="inline-block rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
+            Linked
+          </span>
+        ) : tgCode ? (
+          <span className="inline-block rounded bg-yellow-100 px-2 py-1 font-mono text-sm font-bold text-yellow-800">
+            {tgCode}
+          </span>
+        ) : (
+          <button
+            onClick={handleGenerateTgCode}
+            disabled={loading}
+            className="text-xs font-medium text-blue-600 hover:text-blue-800 disabled:opacity-50"
+          >
+            Get Link Code
+          </button>
+        )}
       </td>
       <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
         {!isMe && roleName !== "super_admin" && (

@@ -30,7 +30,7 @@ export default async function StaffPage() {
   // Get all staff in the property
   const { data: staff } = await supabase
     .from("profiles")
-    .select("id, email, full_name, is_active, created_at, role_id, roles(id, name, label)")
+    .select("id, email, full_name, is_active, created_at, role_id, tg_user_id, roles(id, name, label)")
     .order("created_at");
 
   // Get all roles for the invite form
@@ -88,6 +88,9 @@ export default async function StaffPage() {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Telegram
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                   Actions

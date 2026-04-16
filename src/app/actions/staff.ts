@@ -128,6 +128,37 @@ export async function updateStaffRole(formData: FormData) {
   return { success: true };
 }
 
+/** Generate a 6-digit Telegram link code for a staff member. Valid for 10 minutes. */
+export async function generateTelegramCode(formData: FormData) {
+  const auth = await requireManager();
+  if ("error" in auth) return auth;
+
+  const staffId = formData.get("staff_id") as string;
+  if (!staffId) return { error: "Staff ID is required." };
+
+  // Generate a random 6-digit code
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("profiles")
+    .update({ tg_link_code: code, tg_link_expires: expires })
+    .eq("id", staffId)
+    .eq("property_id", auth.profile!.property_id);
+
+  if (error) return { error: error.message };
+
+  await logAudit({
+    actor_id: auth.user.id,
+    action: "telegram.code_generated",
+    entity: "profiles",
+    entity_id: staffId,
+  });
+
+  return { success: true, code };
+}
+
 /** Toggle a staff member's active status. */
 export async function toggleStaffActive(formData: FormData) {
   const auth = await requireManager();
