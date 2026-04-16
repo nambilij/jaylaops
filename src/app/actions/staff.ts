@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logAudit } from "@/lib/audit";
 import { redirect } from "next/navigation";
 
 /** Verify the current user is super_admin or manager. */
@@ -79,6 +80,14 @@ export async function inviteStaff(formData: FormData) {
     email,
   });
 
+  await logAudit({
+    actor_id: auth.user.id,
+    action: "user.invited",
+    entity: "profiles",
+    entity_id: newUser.user.id,
+    diff: { email, full_name: fullName, role_id: roleId },
+  });
+
   return { success: true, tempPassword };
 }
 
@@ -107,6 +116,15 @@ export async function updateStaffRole(formData: FormData) {
     .eq("property_id", auth.profile!.property_id);
 
   if (error) return { error: error.message };
+
+  await logAudit({
+    actor_id: auth.user.id,
+    action: "staff.role_changed",
+    entity: "profiles",
+    entity_id: staffId,
+    diff: { new_role_id: roleId },
+  });
+
   return { success: true };
 }
 
@@ -130,5 +148,13 @@ export async function toggleStaffActive(formData: FormData) {
     .eq("property_id", auth.profile!.property_id);
 
   if (error) return { error: error.message };
+
+  await logAudit({
+    actor_id: auth.user.id,
+    action: isActive ? "staff.deactivated" : "staff.activated",
+    entity: "profiles",
+    entity_id: staffId,
+  });
+
   return { success: true };
 }
